@@ -1,0 +1,6 @@
+neuronav.db
+data/
+# .gitignore
+node_modules/
+.next/
+.env.local
