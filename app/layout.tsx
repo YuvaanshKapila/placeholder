@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import { Auth0Provider } from '@auth0/nextjs-auth0'
 import { AccessibilityProvider } from './context/AccessibilityContext'
-import GlobalLoader from './components/GlobalLoader'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -24,7 +23,6 @@ export default function RootLayout({
       <body className="font-sans">
         <Auth0Provider>
           <AccessibilityProvider>
-            <GlobalLoader />
             {children}
           </AccessibilityProvider>
         </Auth0Provider>

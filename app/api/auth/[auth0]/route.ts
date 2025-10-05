@@ -1,10 +1,3 @@
-import { Auth0Client } from '@auth0/nextjs-auth0/server';
+import { handleAuth } from '@auth0/nextjs-auth0';
 
-const auth0 = new Auth0Client({
-  domain: process.env.AUTH0_DOMAIN!,
-  clientId: process.env.AUTH0_CLIENT_ID!,
-  clientSecret: process.env.AUTH0_CLIENT_SECRET!,
-  appBaseUrl: process.env.AUTH0_BASE_URL!
-});
-
-export const GET = auth0.handleAuth();
+export const GET = handleAuth();
