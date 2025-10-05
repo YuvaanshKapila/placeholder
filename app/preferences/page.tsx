@@ -4,6 +4,10 @@ import { useUser } from '@auth0/nextjs-auth0'
 import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import VoiceGuidanceToggle from '../components/VoiceGuidanceToggle'
+import AccessibleButton from '../components/AccessibleButton'
+import { useAccessibility } from '../context/AccessibilityContext'
+import { speakOnHover, stopHoverSpeech } from '../utils/accessibility'
 
 export default function Preferences() {
   const { user, isLoading } = useUser()
@@ -111,13 +115,45 @@ export default function Preferences() {
     return null
   }
 
+  const { isVoiceGuidanceEnabled } = useAccessibility()
+
   const neurodivergencyOptions = [
-    { id: 'adhd', label: 'ADHD', description: 'Attention Deficit Hyperactivity Disorder' },
-    { id: 'autism', label: 'Autism', description: 'Autism Spectrum Disorder' },
-    { id: 'learning', label: 'Learning Disabilities', description: 'Dyslexia, Dyscalculia, Dysgraphia, etc.' },
-    { id: 'anxiety', label: 'Anxiety', description: 'Generalized or social anxiety' },
-    { id: 'sensory', label: 'Sensory Processing', description: 'Sensory processing differences' },
-    { id: 'other', label: 'Other', description: 'Other neurodivergent traits' }
+    {
+      id: 'adhd',
+      label: 'ADHD',
+      description: 'Attention Deficit Hyperactivity Disorder',
+      tools: 'Focus timers, reminders, and task breakdown coming soon'
+    },
+    {
+      id: 'autism',
+      label: 'Autism',
+      description: 'Autism Spectrum Disorder',
+      tools: 'Sensory-friendly routes and predictable patterns coming soon'
+    },
+    {
+      id: 'learning',
+      label: 'Learning Disabilities',
+      description: 'Dyslexia, Dyscalculia, Dysgraphia',
+      tools: 'Text-to-Speech Reader, Math Problem Solver, and Spell Checker available now!'
+    },
+    {
+      id: 'anxiety',
+      label: 'Anxiety',
+      description: 'Generalized or social anxiety',
+      tools: 'Calming exercises and breathing techniques available now!'
+    },
+    {
+      id: 'sensory',
+      label: 'Sensory Processing',
+      description: 'Sensory processing differences',
+      tools: 'Sensory preference tracking available now!'
+    },
+    {
+      id: 'speech',
+      label: 'Speech Impediment',
+      description: 'Speech and pronunciation support',
+      tools: 'Speech practice and feedback available!'
+    }
   ]
 
   return (
@@ -161,28 +197,37 @@ export default function Preferences() {
                   <button
                     key={option.id}
                     onClick={() => handleNeurodivergencyToggle(option.id)}
-                    className={`text-left p-4 rounded-xl border-2 transition-all duration-300 ${
+                    onMouseEnter={() => {
+                      if (isVoiceGuidanceEnabled) {
+                        speakOnHover(`${option.label}. ${option.description}. ${option.tools}`)
+                      }
+                    }}
+                    onMouseLeave={() => isVoiceGuidanceEnabled && stopHoverSpeech()}
+                    className={`text-left p-4 rounded-xl border-2 transition-all duration-300 hover:scale-105 ${
                       neurodivergencies.includes(option.id)
-                        ? 'border-blue-500 bg-blue-50/50'
-                        : 'border-blue-100/50 bg-white/40 hover:border-blue-300/50'
+                        ? 'border-blue-500 bg-blue-50/50 shadow-md'
+                        : 'border-blue-100/50 bg-white/40 hover:border-blue-300/50 hover:shadow-md'
                     }`}
                   >
-                    <div className="flex items-start justify-between">
+                    <div className="flex items-start justify-between mb-2">
                       <div>
-                        <p className="font-medium text-blue-900">{option.label}</p>
+                        <p className="font-medium text-blue-900 text-lg">{option.label}</p>
                         <p className="text-xs text-blue-600/60 font-light">{option.description}</p>
                       </div>
-                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                      <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
                         neurodivergencies.includes(option.id)
                           ? 'border-blue-500 bg-blue-500'
                           : 'border-blue-300'
                       }`}>
                         {neurodivergencies.includes(option.id) && (
-                          <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                           </svg>
                         )}
                       </div>
+                    </div>
+                    <div className="mt-2 pt-2 border-t border-blue-200/50">
+                      <p className="text-xs text-blue-700 font-medium">{option.tools}</p>
                     </div>
                   </button>
                 ))}
@@ -200,20 +245,8 @@ export default function Preferences() {
       )}
 
       <nav className="relative z-10 flex justify-between items-center px-4 sm:px-6 lg:px-8 py-6">
-        <Link href="/" className="flex items-center space-x-4 group cursor-pointer">
-          <svg className="w-32 h-12 transform transition-transform duration-500 group-hover:scale-105" viewBox="0 0 120 40" fill="none">
-            <path d="M8 32 L8 8 L18 22 L18 8" stroke="url(#gradient1)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
-            <path d="M28 20 C28 14, 32 10, 38 10 C44 10, 46 14, 46 18 C46 22, 44 24, 40 26 L28 26" stroke="url(#gradient1)" strokeWidth="3" strokeLinecap="round"/>
-            <path d="M52 10 L52 26 M52 10 L62 26 M62 26 L62 10" stroke="url(#gradient1)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
-            <path d="M68 26 L68 10 M68 10 L78 10 M68 18 L76 18" stroke="url(#gradient1)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
-            <path d="M84 10 C84 10, 84 26, 84 26 C84 26, 94 26, 94 18 C94 10, 84 10, 84 10" stroke="url(#gradient1)" strokeWidth="3" strokeLinecap="round"/>
-            <defs>
-              <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor="#3B82F6" />
-                <stop offset="100%" stopColor="#1E40AF" />
-              </linearGradient>
-            </defs>
-          </svg>
+        <Link href="/" className="text-2xl font-extralight tracking-widest text-blue-900 hover:text-blue-600 transition-colors">
+          ← Back to Home
         </Link>
         <a
           href="/auth/logout"
@@ -241,6 +274,8 @@ export default function Preferences() {
               <button
                 key={option.id}
                 onClick={() => handleNeurodivergencyToggle(option.id)}
+                onMouseEnter={() => isVoiceGuidanceEnabled && speakOnHover(`${option.label}. ${option.description}. ${option.tools}`)}
+                onMouseLeave={() => isVoiceGuidanceEnabled && stopHoverSpeech()}
                 className={`text-left p-4 rounded-xl border-2 transition-all duration-300 ${
                   neurodivergencies.includes(option.id)
                     ? 'border-blue-500 bg-blue-50/50'
@@ -282,6 +317,8 @@ export default function Preferences() {
                   <button
                     key={level}
                     onClick={() => setPreferences({...preferences, crowdSensitivity: level})}
+                    onMouseEnter={() => isVoiceGuidanceEnabled && speakOnHover(`Crowd Sensitivity: ${level}`)}
+                    onMouseLeave={() => isVoiceGuidanceEnabled && stopHoverSpeech()}
                     className={`flex-1 py-3 px-4 rounded-xl border-2 transition-all duration-300 ${
                       preferences.crowdSensitivity === level
                         ? 'border-blue-500 bg-blue-500 text-white'
@@ -302,6 +339,8 @@ export default function Preferences() {
                   <button
                     key={level}
                     onClick={() => setPreferences({...preferences, soundSensitivity: level})}
+                    onMouseEnter={() => isVoiceGuidanceEnabled && speakOnHover(`Sound Sensitivity: ${level}`)}
+                    onMouseLeave={() => isVoiceGuidanceEnabled && stopHoverSpeech()}
                     className={`flex-1 py-3 px-4 rounded-xl border-2 transition-all duration-300 ${
                       preferences.soundSensitivity === level
                         ? 'border-purple-500 bg-purple-500 text-white'
@@ -322,6 +361,8 @@ export default function Preferences() {
                   <button
                     key={level}
                     onClick={() => setPreferences({...preferences, lightSensitivity: level})}
+                    onMouseEnter={() => isVoiceGuidanceEnabled && speakOnHover(`Light Sensitivity: ${level}`)}
+                    onMouseLeave={() => isVoiceGuidanceEnabled && stopHoverSpeech()}
                     className={`flex-1 py-3 px-4 rounded-xl border-2 transition-all duration-300 ${
                       preferences.lightSensitivity === level
                         ? 'border-green-500 bg-green-500 text-white'
@@ -342,6 +383,8 @@ export default function Preferences() {
                   <button
                     key={level}
                     onClick={() => setPreferences({...preferences, touchAvoidance: level})}
+                    onMouseEnter={() => isVoiceGuidanceEnabled && speakOnHover(`Touch Avoidance: ${level}`)}
+                    onMouseLeave={() => isVoiceGuidanceEnabled && stopHoverSpeech()}
                     className={`flex-1 py-3 px-4 rounded-xl border-2 transition-all duration-300 ${
                       preferences.touchAvoidance === level
                         ? 'border-orange-500 bg-orange-500 text-white'
@@ -360,6 +403,8 @@ export default function Preferences() {
         <div className="flex gap-4">
           <button
             onClick={handleSavePreferences}
+            onMouseEnter={() => isVoiceGuidanceEnabled && speakOnHover('Save Preferences. Click to save your settings')}
+            onMouseLeave={() => isVoiceGuidanceEnabled && stopHoverSpeech()}
             className="flex-1 px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-full font-light text-lg tracking-wide hover:from-blue-700 hover:to-blue-800 transition-all duration-500 shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 relative overflow-hidden group"
           >
             <span className="absolute inset-0 bg-white/20 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></span>
@@ -367,6 +412,8 @@ export default function Preferences() {
           </button>
           <Link
             href="/profile"
+            onMouseEnter={() => isVoiceGuidanceEnabled && speakOnHover('View Profile. Click to see your profile page')}
+            onMouseLeave={() => isVoiceGuidanceEnabled && stopHoverSpeech()}
             className="flex-1 px-8 py-4 bg-white/60 backdrop-blur-md text-blue-700 rounded-full font-light text-lg tracking-wide border border-blue-200 hover:bg-blue-50 transition-all duration-500 hover:shadow-xl hover:scale-105 active:scale-95 text-center"
           >
             View Profile
@@ -375,10 +422,12 @@ export default function Preferences() {
 
         {saved && (
           <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-xl text-center animate-fade-in">
-            <p className="text-green-700 font-light">✓ Preferences saved successfully!</p>
+            <p className="text-green-700 font-light">Preferences saved successfully!</p>
           </div>
         )}
       </main>
+
+      <VoiceGuidanceToggle />
 
       <style jsx>{`
         @keyframes drift {

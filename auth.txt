@@ -1,0 +1,204 @@
+When you signed up for Auth0, a new application was created for you, or you could have created a new one. You will need some details about that application to communicate with Auth0. You can get these details from the Application Settings section in the Auth0 dashboard.
+
+App Dashboard
+
+You need the following information:
+
+Domain
+Client ID
+Client Secret
+If you download the sample from the top of this page, these details are filled out for you.
+
+Configure Callback URLs
+A callback URL is a URL in your application where Auth0 redirects the user after they have authenticated. The callback URL for your app must be added to the Allowed Callback URLs field in your Application Settings. If this field is not set, users will be unable to log in to the application and will get an error.
+
+If you are following along with the sample project you downloaded from the top of this page, the callback URL you need to add to the Allowed Callback URLs field is http://localhost:3000/auth/callback.
+
+Configure Logout URLs
+A logout URL is a URL in your application that Auth0 can return to after the user has been logged out of the authorization server. This is specified in the returnTo query parameter. The logout URL for your app must be added to the Allowed Logout URLs field in your Application Settings. If this field is not set, users will be unable to log out from the application and will get an error.
+
+If you are following along with the sample project you downloaded from the top of this page, the logout URL you need to add to the Allowed Logout URLs field is http://localhost:3000.
+
+Install the Auth0 Next.js SDK
+Run the following command within your project directory to install the Auth0 Next.js SDK:
+
+npm install @auth0/nextjs-auth0
+Was this helpful?
+
+/
+The SDK exposes methods and variables that help you integrate Auth0 with your Next.js application using Route Handlers on the backend and React Context with React Hooks on the frontend.
+
+Configure the SDK
+In the root directory of your project, create the file .env.local with the following environment variables:
+
+AUTH0_SECRET='use [openssl rand -hex 32] to generate a 32 bytes value'
+APP_BASE_URL='http://localhost:3000'
+AUTH0_DOMAIN='https://dev-vgjy68m0jgy4n1t0.us.auth0.com'
+AUTH0_CLIENT_ID='JEFhvAvmZUGiLypIffrquYnWVZs4aOO4'
+AUTH0_CLIENT_SECRET='1ibR5M5O8pcsk-lMZ2SNhAbhQ7EGyyBUVuDoLlUjAb7XHrGGD5A6oS9RvOUljZQ_'
+# 'If your application is API authorized add the variables AUTH0_AUDIENCE and AUTH0_SCOPE'
+AUTH0_AUDIENCE='your_auth_api_identifier'
+AUTH0_SCOPE='openid profile email read:shows'
+Was this helpful?
+
+/
+AUTH0_SECRET: A long secret value used to encrypt the session cookie. You can generate a suitable string using openssl rand -hex 32 on the command line.
+APP_BASE_URL: The base URL of your application
+AUTH0_DOMAIN: The URL of your Auth0 tenant domain
+AUTH0_CLIENT_ID: Your Auth0 application's Client ID
+AUTH0_CLIENT_SECRET: Your Auth0 application's Client Secret
+The SDK will read these values from the Node.js process environment and configure itself automatically.
+
+Manually add the values for AUTH0_AUDIENCE and AUTH_SCOPE to the file lib/auth0.js. These values are not configured automatically. If you are using a Custom Domain with Auth0, set AUTH0_DOMAIN to the value of your Custom Domain instead of the value reflected in the application "Settings" tab.
+
+Create the Auth0 SDK Client
+Create a file at lib/auth0.js to add an instance of the Auth0 client. This instance provides methods for handling authentication, sesssions and user data.
+
+// lib/auth0.js
+
+import { Auth0Client } from "@auth0/nextjs-auth0/server";
+
+// Initialize the Auth0 client 
+export const auth0 = new Auth0Client({
+  // Options are loaded from environment variables by default
+  // Ensure necessary environment variables are properly set
+  // domain: process.env.AUTH0_DOMAIN,
+  // clientId: process.env.AUTH0_CLIENT_ID,
+  // clientSecret: process.env.AUTH0_CLIENT_SECRET,
+  // appBaseUrl: process.env.APP_BASE_URL,
+  // secret: process.env.AUTH0_SECRET,
+
+  authorizationParameters: {
+    // In v4, the AUTH0_SCOPE and AUTH0_AUDIENCE environment variables for API authorized applications are no longer automatically picked up by the SDK.
+    // Instead, we need to provide the values explicitly.
+    scope: process.env.AUTH0_SCOPE,
+    audience: process.env.AUTH0_AUDIENCE,
+  }
+});
+Was this helpful?
+
+/
+Add the Authentication Middleware
+The Next.js Middleware allows you to run code before a request is completed. Create a middleware.ts file. This file is used to enforce authentication on specific routes.
+
+import type { NextRequest } from "next/server";
+import { auth0 } from "./lib/auth0";
+
+export async function middleware(request: NextRequest) {
+  return await auth0.middleware(request);
+}
+
+export const config = {
+  matcher: [
+    /*
+     * Match all request paths except for the ones starting with:
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico, sitemap.xml, robots.txt (metadata files)
+     */
+    "/((?!_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)",
+  ],
+};
+Was this helpful?
+
+/
+The middleware function intercepts incoming requests and applies Auth0's authentication logic. The matcher configuration ensures that the middleware runs on all routes except for static files and metadata.
+
+Auto-configured routes
+Using the SDK's middleware auto-configures the following routes:
+
+/auth/login: The route to perform login with Auth0
+/auth/logout: The route to log the user out
+/auth/callback: The route Auth0 will redirect the user to after a successful login
+/auth/profile: The route to fetch the user profile
+/auth/access-token: The route to verify the user's session and return an access token (which automatically refreshes if a refresh token is available)
+/auth/backchannel-logout: The route to receive a logout_token when a configured Back-Channel Logout initiator occurs
+The /auth/access-token route is enabled by default, but is only neccessary when the access token is needed on the client-side. If this isn't something you need, you can disable this endpoint by setting enableAccessTokenEndpoint to false.
+
+Add Login to Your Application
+Users can now log in to your application at /auth/login route provided by the SDK. Use an anchor tag to add a link to the login route to redirect your users to the Auth0 Universal Login Page, where Auth0 can authenticate them. Upon successful authentication, Auth0 redirects your users back to your application.
+
+<a href="/auth/login">Login</a>
+Was this helpful?
+
+/
+Next.js suggests using Link components instead of anchor tags, but since these are API routes and not pages, anchor tags are needed.
+
+Checkpoint
+Add the login link to your application. Select it and verify that your Next.js application redirects you to the Auth0 Universal Login page and that you can now log in or sign up using a username and password or a social provider.
+
+Once that's complete, verify that Auth0 redirects back to your application.
+
+If you are following along with the sample app project from the top of this page, run the command:
+
+npm i && npm run dev
+Was this helpful?
+
+/
+and visit http://localhost:3000 in your browser.
+
+Auth0 Universal Login
+
+Auth0 enables the Google social provider by default on new tenants and offers you developer keys to test logging in with social identity providers. However, these developer keys have some limitations that may cause your application to behave differently. For more details on what this behavior may look like and how to fix it, consult the Test Social Connections with Auth0 Developer Keys document.
+
+Add Logout to Your Application
+Now that you can log in to your Next.js application, you need a way to log out. Add a link that points to the /auth/logout API route. To learn more, read Log Users out of Auth0 with OIDC Endpoint.
+
+<a href="/auth/logout">Logout</a>
+Was this helpful?
+
+/
+Checkpoint
+Add the logout link to your application. When you select it, verify that your Next.js application redirects you to the address you specified as one of the "Allowed Logout URLs" in the application "Settings".
+
+Show User Profile Information
+The Auth0 Next.js SDK helps you retrieve the profile information associated with the logged-in user, such as their name or profile picture, to personalize the user interface.
+
+From a Client Component
+The profile information is available through the user property exposed by the useUser() hook. Take this Client Component as an example of how to use it:
+
+'use client';
+import { useUser } from "@auth0/nextjs-auth0"
+
+export default function Profile() {
+  const { user, isLoading } = useUser();
+  return (
+    <>
+      {isLoading && <p>Loading...</p>}
+      {user && (
+        <div style={{ textAlign: "center" }}>
+          <img
+            src={user.picture}
+            alt="Profile"
+            style={{ borderRadius: "50%", width: "80px", height: "80px" }}
+          />
+          <h2>{user.name}</h2>
+          <p>{user.email}</p>
+          <pre>{JSON.stringify(user, null, 2)}</pre>
+        </div>
+      )}
+    </>
+  );
+}
+Was this helpful?
+
+/
+The user property contains sensitive information and artifacts related to the user's identity. As such, its availability depends on the user's authentication status. To prevent any render errors:
+
+Ensure that the SDK has completed loading before accessing the user property by checking that isLoading is false.
+Ensure that the SDK has loaded successfully by checking that no error was produced.
+Check the user property to ensure that Auth0 has authenticated the user before React renders any component that consumes it.
+From a Server Component
+The profile information is available through the user property exposed by the getSession function. Take this Server Component as an example of how to use it:
+
+import { auth0 } from "@/lib/auth0";
+
+export default async function ProfileServer() {
+  const { user } = await auth0.getSession(); 
+  return ( user && ( <div> <img src={user.picture} alt={user.name}/> <h2>{user.name}</h2> <p>{user.email}</p> </div> )  ); 
+}
+Was this helpful?
+
+/
+Checkpoint
+Verify that you can display the user.name or any other user property within a component correctly after you have logged in. 

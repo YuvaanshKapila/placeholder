@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 
-const ELEVENLABS_API_KEY = 'sk_f1b771c8ee6e1b8fadc5dc0c487165113cef5142be0df69e'
+const ELEVENLABS_API_KEY = 'sk_5507278ae7de294d179926914a2a62f4c61bf0dc3f3c0da8'
 const VOICE_ID = 'JBFqnCBsd6RMkjVDRZzb' // Default voice
 
 export async function POST(request: Request) {

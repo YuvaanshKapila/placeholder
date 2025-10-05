@@ -31,7 +31,7 @@ export default function LearningHub() {
       id: 'dyslexia',
       name: 'Dyslexia Support',
       description: 'Camera Text-to-Speech Reader',
-      icon: '📖',
+      icon: '',
       color: 'from-blue-500 to-blue-600',
       href: '/learning-hub/dyslexia'
     },
@@ -39,7 +39,7 @@ export default function LearningHub() {
       id: 'dyscalculia',
       name: 'Dyscalculia Support',
       description: 'Visual Math Problem Solver',
-      icon: '🔢',
+      icon: '',
       color: 'from-purple-500 to-purple-600',
       href: '/learning-hub/dyscalculia'
     },
@@ -47,7 +47,7 @@ export default function LearningHub() {
       id: 'dysgraphia',
       name: 'Dysgraphia Support',
       description: 'Spell Check & Writing Assistant',
-      icon: '✍️',
+      icon: '',
       color: 'from-green-500 to-green-600',
       href: '/learning-hub/dysgraphia'
     }
@@ -61,8 +61,8 @@ export default function LearningHub() {
       </div>
 
       <nav className="relative z-10 flex justify-between items-center px-4 sm:px-6 lg:px-8 py-6">
-        <Link href="/" className="text-2xl font-extralight tracking-widest text-blue-900">
-          ← Back
+        <Link href="/" className="text-2xl font-extralight tracking-widest text-blue-900 hover:text-blue-600 transition-colors">
+          ← Back to Home
         </Link>
         <a
           href="/auth/logout"
@@ -95,7 +95,6 @@ export default function LearningHub() {
 
               <div className="relative">
                 <div className={`w-20 h-20 bg-gradient-to-br ${tool.color} rounded-2xl flex items-center justify-center mb-6 shadow-lg transform group-hover:scale-110 transition-transform duration-500`}>
-                  <span className="text-4xl">{tool.icon}</span>
                 </div>
 
                 <h3 className="text-2xl font-light text-blue-900 mb-3 tracking-wide">
@@ -120,26 +119,17 @@ export default function LearningHub() {
         <div className="mt-16 bg-white/40 backdrop-blur-md rounded-3xl p-8 border border-blue-100/50">
           <h2 className="text-2xl font-light text-blue-900 mb-4">How These Tools Help</h2>
           <div className="space-y-4 text-blue-600/80">
-            <div className="flex items-start space-x-3">
-              <span className="text-2xl">📖</span>
-              <div>
-                <p className="font-medium">Dyslexia Tool:</p>
-                <p className="font-light">Point your camera at any text and hear it read aloud with adjustable speed and highlighting</p>
-              </div>
+            <div>
+              <p className="font-medium">Dyslexia Tool:</p>
+              <p className="font-light">Point your camera at any text and hear it read aloud with adjustable speed and highlighting</p>
             </div>
-            <div className="flex items-start space-x-3">
-              <span className="text-2xl">🔢</span>
-              <div>
-                <p className="font-medium">Dyscalculia Tool:</p>
-                <p className="font-light">Take a photo of math problems and get step-by-step visual solutions with diagrams</p>
-              </div>
+            <div>
+              <p className="font-medium">Dyscalculia Tool:</p>
+              <p className="font-light">Take a photo of math problems and get step-by-step visual solutions with diagrams</p>
             </div>
-            <div className="flex items-start space-x-3">
-              <span className="text-2xl">✍️</span>
-              <div>
-                <p className="font-medium">Dysgraphia Tool:</p>
-                <p className="font-light">Get spelling suggestions with visual aids and word prediction as you type</p>
-              </div>
+            <div>
+              <p className="font-medium">Dysgraphia Tool:</p>
+              <p className="font-light">Get spelling suggestions with visual aids and word prediction as you type</p>
             </div>
           </div>
         </div>

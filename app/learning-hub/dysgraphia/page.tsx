@@ -227,10 +227,10 @@ export default function DysgraphiaSupport() {
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-green-50 p-4">
       <nav className="flex justify-between items-center mb-8">
         <Link
-          href="/learning-hub"
+          href="/"
           className="px-6 py-3 bg-white text-green-700 rounded-full font-semibold border-2 border-green-300 hover:bg-green-600 hover:text-white transition-all duration-300 shadow-md"
         >
-          Back to Hub
+          ← Home
         </Link>
         <h1 className="text-3xl font-bold text-green-900">Dysgraphia Support</h1>
         <div className="w-32"></div>

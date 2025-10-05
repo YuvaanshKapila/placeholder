@@ -151,12 +151,12 @@ export default function DyslexiaSupport() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 p-4">
       <nav className="flex justify-between items-center mb-8">
         <Link
-          href="/learning-hub"
+          href="/"
           className="px-6 py-3 bg-white/60 backdrop-blur-md text-blue-700 rounded-full font-light border border-blue-200 hover:bg-blue-600 hover:text-white transition-all duration-300"
         >
-          ← Back to Hub
+          ← Home
         </Link>
-        <h1 className="text-3xl font-light text-blue-900">📖 Dyslexia Support</h1>
+        <h1 className="text-3xl font-light text-blue-900">Dyslexia Support</h1>
         <div className="w-32"></div>
       </nav>
 
@@ -278,14 +278,14 @@ export default function DyslexiaSupport() {
                       onClick={readTextAloud}
                       className="flex-1 px-6 py-3 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-all font-medium"
                     >
-                      🔊 Read Aloud
+                      Read Aloud
                     </button>
                   ) : (
                     <button
                       onClick={stopReading}
                       className="flex-1 px-6 py-3 bg-red-600 text-white rounded-full hover:bg-red-700 transition-all font-medium"
                     >
-                      ⏹ Stop Reading
+                      Stop Reading
                     </button>
                   )}
                   <button

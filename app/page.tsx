@@ -3,11 +3,43 @@
 import { useUser } from '@auth0/nextjs-auth0'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import VoiceGuidanceToggle from './components/VoiceGuidanceToggle'
+import AccessibleButton from './components/AccessibleButton'
+import AnxietySupport from './components/AnxietySupport'
+import CompassAnimation from './components/CompassAnimation'
+import { useAccessibility } from './context/AccessibilityContext'
+import { speakOnHover, stopHoverSpeech } from './utils/accessibility'
+
+const taglines = [
+  "Let's navigate your day",
+  "Your journey, your way",
+  "Making the world more accessible",
+  "Navigate with confidence",
+  "Empowering your path forward",
+  "Tools built for you",
+  "Your compass, your control",
+  "Designed around your needs",
+  "Navigating life, together",
+  "Your personalized guide"
+]
 
 export default function Home() {
   const { user, isLoading } = useUser()
   const router = useRouter()
-  const [showLearningPopup, setShowLearningPopup] = useState(false)
+  const [showCompassAnimation, setShowCompassAnimation] = useState(true)
+  const [showAnxietySupport, setShowAnxietySupport] = useState(false)
+  const [hasAnxiety, setHasAnxiety] = useState(false)
+  const [hasLearning, setHasLearning] = useState(false)
+  const [hasAutism, setHasAutism] = useState(false)
+  const [hasSpeech, setHasSpeech] = useState(false)
+  const [tagline] = useState(() => taglines[Math.floor(Math.random() * taglines.length)])
+  const [preferences, setPreferences] = useState({
+    crowdSensitivity: 'medium',
+    soundSensitivity: 'medium',
+    lightSensitivity: 'medium',
+    touchAvoidance: 'medium'
+  })
+  const { isVoiceGuidanceEnabled } = useAccessibility()
 
   useEffect(() => {
     if (user) {
@@ -19,9 +51,32 @@ export default function Home() {
             // First time user - redirect to preferences
             router.push('/preferences')
           } else {
+            // Save preferences for anxiety support
+            setPreferences({
+              crowdSensitivity: data.crowd_sensitivity || 'medium',
+              soundSensitivity: data.sound_sensitivity || 'medium',
+              lightSensitivity: data.light_sensitivity || 'medium',
+              touchAvoidance: data.touch_avoidance || 'medium'
+            })
+
             // Check if user has learning disabilities selected
             if (data.neurodivergencies && data.neurodivergencies.includes('learning')) {
-              setShowLearningPopup(true)
+              setHasLearning(true)
+            }
+
+            // Check if user has anxiety selected
+            if (data.neurodivergencies && data.neurodivergencies.includes('anxiety')) {
+              setHasAnxiety(true)
+            }
+
+            // Check if user has autism selected
+            if (data.neurodivergencies && data.neurodivergencies.includes('autism')) {
+              setHasAutism(true)
+            }
+
+            // Check if user has speech impediment selected
+            if (data.neurodivergencies && data.neurodivergencies.includes('speech')) {
+              setHasSpeech(true)
             }
           }
         })
@@ -54,156 +109,206 @@ export default function Home() {
 
   if (user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 relative overflow-hidden">
+      <>
+        {showCompassAnimation && (
+          <CompassAnimation onComplete={() => setShowCompassAnimation(false)} />
+        )}
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 relative overflow-hidden">
         <div className="absolute inset-0 opacity-20 pointer-events-none">
           <div className="absolute top-20 left-10 w-96 h-96 bg-blue-300 rounded-full mix-blend-multiply filter blur-3xl animate-drift"></div>
           <div className="absolute bottom-20 right-10 w-96 h-96 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl animate-drift-delayed"></div>
         </div>
 
-        {/* Learning Disabilities Popup */}
-        {showLearningPopup && (
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in-up">
-            <div className="bg-white/90 backdrop-blur-md rounded-3xl p-8 max-w-2xl w-full border border-blue-200 shadow-2xl animate-fade-in-up animation-delay-200">
-              <div className="text-center mb-8">
-                <h2 className="text-4xl font-light text-blue-900 mb-4 tracking-wide">
-                  Learning Support Tools
-                </h2>
-                <p className="text-blue-600/70 font-light">
-                  Choose which learning disability tool you'd like to use
-                </p>
-              </div>
-
-              <div className="grid gap-6 mb-6">
-                <button
-                  onClick={() => router.push('/learning-hub/dyslexia')}
-                  className="group relative overflow-hidden bg-gradient-to-br from-blue-500/10 to-blue-600/10 hover:from-blue-500/20 hover:to-blue-600/20 rounded-2xl p-6 border border-blue-200 hover:border-blue-400 transition-all duration-500 hover:shadow-xl hover:-translate-y-1 text-left"
-                >
-                  <div className="flex items-start space-x-4">
-                    <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                      </svg>
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="text-xl font-light text-blue-900 mb-2">Dyslexia Support</h3>
-                      <p className="text-blue-600/70 text-sm font-light">Camera-based text-to-speech reader with adjustable fonts and reading speed</p>
-                    </div>
-                  </div>
-                </button>
-
-                <button
-                  onClick={() => router.push('/learning-hub/dyscalculia')}
-                  className="group relative overflow-hidden bg-gradient-to-br from-purple-500/10 to-purple-600/10 hover:from-purple-500/20 hover:to-purple-600/20 rounded-2xl p-6 border border-purple-200 hover:border-purple-400 transition-all duration-500 hover:shadow-xl hover:-translate-y-1 text-left"
-                >
-                  <div className="flex items-start space-x-4">
-                    <div className="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                      </svg>
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="text-xl font-light text-purple-900 mb-2">Dyscalculia Support</h3>
-                      <p className="text-purple-600/70 text-sm font-light">Math problem solver with visual step-by-step solutions powered by AI</p>
-                    </div>
-                  </div>
-                </button>
-
-                <button
-                  onClick={() => router.push('/learning-hub/dysgraphia')}
-                  className="group relative overflow-hidden bg-gradient-to-br from-green-500/10 to-green-600/10 hover:from-green-500/20 hover:to-green-600/20 rounded-2xl p-6 border border-green-200 hover:border-green-400 transition-all duration-500 hover:shadow-xl hover:-translate-y-1 text-left"
-                >
-                  <div className="flex items-start space-x-4">
-                    <div className="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                      </svg>
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="text-xl font-light text-green-900 mb-2">Dysgraphia Support</h3>
-                      <p className="text-green-600/70 text-sm font-light">Writing assistant with spell check, voice dictation, and visual word suggestions</p>
-                    </div>
-                  </div>
-                </button>
-              </div>
-
-              <div className="flex justify-center">
-                <button
-                  onClick={() => setShowLearningPopup(false)}
-                  className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-full font-light tracking-wide transition-all duration-300 hover:shadow-xl hover:scale-105"
-                >
-                  Close
-                </button>
-              </div>
-            </div>
-          </div>
+        {/* Anxiety Support Modal */}
+        {showAnxietySupport && (
+          <AnxietySupport
+            onClose={() => setShowAnxietySupport(false)}
+            preferences={preferences}
+          />
         )}
 
+
         <div className="container mx-auto px-4 py-8 relative z-10">
-          <nav className="flex justify-end items-center mb-16 animate-slide-down">
-            <a
-              href="/auth/logout"
+          <nav className="flex justify-between items-center mb-16 animate-slide-down">
+            <div className="flex items-center gap-3">
+              <img src="/logo.svg" alt="Project Compass" className="w-12 h-12" />
+              <span className="text-xl font-display font-semibold text-blue-900 hidden sm:block">Project Compass</span>
+            </div>
+            <AccessibleButton
+              onClick={() => window.location.href = '/auth/logout'}
               className="px-8 py-3 bg-white/60 backdrop-blur-md text-blue-700 rounded-full font-light tracking-wide border border-blue-200 hover:bg-blue-600 hover:text-white transition-all duration-500 hover:shadow-2xl hover:scale-105 active:scale-95"
+              label="Sign out"
             >
               Logout
-            </a>
+            </AccessibleButton>
           </nav>
 
           <main className="max-w-6xl mx-auto">
-            <div className="text-center mb-16 animate-fade-in-up">
-              <h1 className="text-6xl md:text-7xl font-extralight mb-6 tracking-tight">
+            <div
+              className="text-center mb-16 animate-fade-in-up cursor-pointer"
+              onMouseEnter={() => isVoiceGuidanceEnabled && speakOnHover(`Welcome back, ${user.name}`)}
+              onMouseLeave={() => isVoiceGuidanceEnabled && stopHoverSpeech()}
+            >
+              <h1 className="text-5xl md:text-6xl font-display font-semibold mb-4 tracking-tight leading-tight">
                 <span className="bg-gradient-to-r from-blue-600 via-blue-500 to-blue-700 bg-clip-text text-transparent animate-gradient">
                   Welcome back, {user.name}
                 </span>
               </h1>
-              <p className="text-xl text-blue-600/60 font-light tracking-wide">
-                Your personalized navigation experience awaits
+              <p className="text-lg md:text-xl text-blue-600/70 font-normal tracking-normal">
+                {tagline}
               </p>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-8 mb-16">
-              <div className="group relative overflow-hidden bg-white/40 backdrop-blur-md rounded-3xl p-8 border border-blue-100/50 hover:border-blue-300/50 transition-all duration-700 hover:shadow-2xl hover:-translate-y-2 animate-fade-in-up animation-delay-200">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-400/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
-                <div className="relative">
-                  <div className="w-16 h-1 bg-gradient-to-r from-blue-500 to-blue-600 mb-6 rounded-full transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-700"></div>
-                  <h3 className="text-2xl font-light text-blue-900 mb-3 tracking-wide">Smart Routes</h3>
-                  <p className="text-blue-600/70 font-light leading-relaxed">Intelligent pathfinding designed around your unique comfort preferences and sensory needs</p>
-                </div>
-              </div>
+            {/* Tool Boxes - Only show when selected */}
+            <div className={`grid gap-6 mb-16 ${(hasAnxiety && !hasLearning && !hasAutism && !hasSpeech) || (hasSpeech && !hasAnxiety && !hasLearning && !hasAutism) ? 'md:grid-cols-1 max-w-md mx-auto' : hasAutism ? 'md:grid-cols-2 max-w-4xl mx-auto' : 'md:grid-cols-3'}`}>
+              {/* Anxiety Support Box */}
+              {hasAnxiety && (
+                <button
+                  onClick={() => setShowAnxietySupport(true)}
+                  onMouseEnter={() => isVoiceGuidanceEnabled && speakOnHover('Anxiety Support')}
+                  onMouseLeave={() => isVoiceGuidanceEnabled && stopHoverSpeech()}
+                  className="group relative overflow-hidden bg-gradient-to-br from-indigo-500/10 to-purple-600/10 hover:from-indigo-500/20 hover:to-purple-600/20 rounded-3xl p-8 border-2 border-indigo-200 hover:border-indigo-400 transition-all duration-300 ease-smooth-out hover:shadow-2xl hover:-translate-y-1 text-left"
+                >
+                  <div className="flex flex-col items-center text-center">
+                    <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                      <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                      </svg>
+                    </div>
+                    <h3 className="text-2xl font-display font-semibold text-indigo-900">Anxiety Support</h3>
+                  </div>
+                </button>
+              )}
 
-              <div className="group relative overflow-hidden bg-white/40 backdrop-blur-md rounded-3xl p-8 border border-blue-100/50 hover:border-blue-300/50 transition-all duration-700 hover:shadow-2xl hover:-translate-y-2 animate-fade-in-up animation-delay-400">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-400/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
-                <div className="relative">
-                  <div className="w-16 h-1 bg-gradient-to-r from-blue-500 to-blue-600 mb-6 rounded-full transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-700"></div>
-                  <h3 className="text-2xl font-light text-blue-900 mb-3 tracking-wide">Adaptive AI</h3>
-                  <p className="text-blue-600/70 font-light leading-relaxed">Machine learning that evolves with your patterns and creates truly personalized experiences</p>
-                </div>
-              </div>
+              {/* Learning Disability Boxes */}
+              {hasLearning && (
+                <>
+                  <button
+                    onClick={() => router.push('/learning-hub/dyslexia')}
+                    onMouseEnter={() => isVoiceGuidanceEnabled && speakOnHover('Dyslexia Support')}
+                    onMouseLeave={() => isVoiceGuidanceEnabled && stopHoverSpeech()}
+                    className="group relative overflow-hidden bg-gradient-to-br from-blue-500/10 to-blue-600/10 hover:from-blue-500/20 hover:to-blue-600/20 rounded-3xl p-8 border-2 border-blue-200 hover:border-blue-400 transition-all duration-300 ease-smooth-out hover:shadow-2xl hover:-translate-y-1 text-left"
+                  >
+                    <div className="flex flex-col items-center text-center">
+                      <div className="w-16 h-16 bg-blue-500 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                        </svg>
+                      </div>
+                      <h3 className="text-2xl font-display font-semibold text-blue-900">Dyslexia Support</h3>
+                    </div>
+                  </button>
 
-              <div className="group relative overflow-hidden bg-white/40 backdrop-blur-md rounded-3xl p-8 border border-blue-100/50 hover:border-blue-300/50 transition-all duration-700 hover:shadow-2xl hover:-translate-y-2 animate-fade-in-up animation-delay-600">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-400/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
-                <div className="relative">
-                  <div className="w-16 h-1 bg-gradient-to-r from-blue-500 to-blue-600 mb-6 rounded-full transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-700"></div>
-                  <h3 className="text-2xl font-light text-blue-900 mb-3 tracking-wide">Real-time Adapt</h3>
-                  <p className="text-blue-600/70 font-light leading-relaxed">Dynamic route adjustment based on live environmental data and your current state</p>
-                </div>
-              </div>
+                  <button
+                    onClick={() => router.push('/learning-hub/dyscalculia')}
+                    onMouseEnter={() => isVoiceGuidanceEnabled && speakOnHover('Dyscalculia Support')}
+                    onMouseLeave={() => isVoiceGuidanceEnabled && stopHoverSpeech()}
+                    className="group relative overflow-hidden bg-gradient-to-br from-purple-500/10 to-purple-600/10 hover:from-purple-500/20 hover:to-purple-600/20 rounded-3xl p-8 border-2 border-purple-200 hover:border-purple-400 transition-all duration-300 ease-smooth-out hover:shadow-2xl hover:-translate-y-1 text-left"
+                  >
+                    <div className="flex flex-col items-center text-center">
+                      <div className="w-16 h-16 bg-purple-500 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                        </svg>
+                      </div>
+                      <h3 className="text-2xl font-display font-semibold text-purple-900">Dyscalculia Support</h3>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => router.push('/learning-hub/dysgraphia')}
+                    onMouseEnter={() => isVoiceGuidanceEnabled && speakOnHover('Dysgraphia Support')}
+                    onMouseLeave={() => isVoiceGuidanceEnabled && stopHoverSpeech()}
+                    className="group relative overflow-hidden bg-gradient-to-br from-green-500/10 to-green-600/10 hover:from-green-500/20 hover:to-green-600/20 rounded-3xl p-8 border-2 border-green-200 hover:border-green-400 transition-all duration-300 ease-smooth-out hover:shadow-2xl hover:-translate-y-1 text-left"
+                  >
+                    <div className="flex flex-col items-center text-center">
+                      <div className="w-16 h-16 bg-green-500 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                        </svg>
+                      </div>
+                      <h3 className="text-2xl font-display font-semibold text-green-900">Dysgraphia Support</h3>
+                    </div>
+                  </button>
+                </>
+              )}
+
+              {/* Autism Support Boxes */}
+              {hasAutism && (
+                <>
+                  <button
+                    onClick={() => router.push('/crowd-analysis')}
+                    onMouseEnter={() => isVoiceGuidanceEnabled && speakOnHover('Crowd Analysis')}
+                    onMouseLeave={() => isVoiceGuidanceEnabled && stopHoverSpeech()}
+                    className="group relative overflow-hidden bg-gradient-to-br from-cyan-500/10 to-teal-600/10 hover:from-cyan-500/20 hover:to-teal-600/20 rounded-3xl p-8 border-2 border-cyan-200 hover:border-cyan-400 transition-all duration-300 ease-smooth-out hover:shadow-2xl hover:-translate-y-1 text-left"
+                  >
+                    <div className="flex flex-col items-center text-center">
+                      <div className="w-16 h-16 bg-gradient-to-br from-cyan-500 to-teal-600 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                        </svg>
+                      </div>
+                      <h3 className="text-2xl font-display font-semibold text-cyan-900">Crowd Analysis</h3>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => router.push('/crowd-map')}
+                    onMouseEnter={() => isVoiceGuidanceEnabled && speakOnHover('Crowd Map')}
+                    onMouseLeave={() => isVoiceGuidanceEnabled && stopHoverSpeech()}
+                    className="group relative overflow-hidden bg-gradient-to-br from-orange-500/10 to-amber-600/10 hover:from-orange-500/20 hover:to-amber-600/20 rounded-3xl p-8 border-2 border-orange-200 hover:border-orange-400 transition-all duration-300 ease-smooth-out hover:shadow-2xl hover:-translate-y-1 text-left"
+                  >
+                    <div className="flex flex-col items-center text-center">
+                      <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-amber-600 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                        </svg>
+                      </div>
+                      <h3 className="text-2xl font-display font-semibold text-orange-900">Crowd Map</h3>
+                    </div>
+                  </button>
+                </>
+              )}
+
+              {/* Speech Impediment Support Box */}
+              {hasSpeech && (
+                <button
+                  onClick={() => router.push('/speech-practice')}
+                  onMouseEnter={() => isVoiceGuidanceEnabled && speakOnHover('Speech Practice')}
+                  onMouseLeave={() => isVoiceGuidanceEnabled && stopHoverSpeech()}
+                  className="group relative overflow-hidden bg-gradient-to-br from-green-500/10 to-teal-600/10 hover:from-green-500/20 hover:to-teal-600/20 rounded-3xl p-8 border-2 border-green-200 hover:border-green-400 transition-all duration-300 ease-smooth-out hover:shadow-2xl hover:-translate-y-1 text-left"
+                >
+                  <div className="flex flex-col items-center text-center">
+                    <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-teal-600 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                      <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                      </svg>
+                    </div>
+                    <h3 className="text-2xl font-display font-semibold text-green-900">Speech Practice</h3>
+                  </div>
+                </button>
+              )}
             </div>
 
             <div className="text-center animate-fade-in-up animation-delay-800">
-              <a
-                href="/profile"
+              <AccessibleButton
+                onClick={() => router.push('/profile')}
                 className="group inline-flex items-center px-12 py-5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-full font-light text-lg tracking-wide hover:from-blue-700 hover:to-blue-800 transition-all duration-500 shadow-xl hover:shadow-2xl hover:scale-105 active:scale-95 relative overflow-hidden"
+                label="View Profile"
               >
                 <span className="absolute inset-0 bg-white/20 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></span>
                 <span className="relative">View Your Profile</span>
                 <svg className="w-5 h-5 ml-3 transform group-hover:translate-x-2 transition-transform duration-500 relative" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
-              </a>
+              </AccessibleButton>
             </div>
           </main>
         </div>
+
+        <VoiceGuidanceToggle />
       </div>
+      </>
     )
   }
 
@@ -254,16 +359,23 @@ export default function Home() {
       </svg>
 
       <div className="relative max-w-2xl w-full">
-        <div className="text-center mb-12 animate-fade-in-up">
-          <h1 className="text-6xl md:text-7xl font-extralight mb-6 tracking-tight">
+        {/* Animated Logo */}
+        <div className="flex justify-center mb-8">
+          <div className="relative w-48 h-48 animate-logo-entrance">
+            <img src="/logo.svg" alt="Project Compass Logo" className="w-full h-full" />
+          </div>
+        </div>
+
+        <div className="text-center mb-12 animate-fade-in-up animation-delay-1200">
+          <h1 className="text-6xl md:text-7xl font-display font-semibold mb-6 tracking-tight">
             <span className="bg-gradient-to-r from-blue-600 via-blue-500 to-blue-700 bg-clip-text text-transparent animate-gradient">
-              NeuroNav
+              Project Compass
             </span>
           </h1>
-          <p className="text-xl text-blue-600/70 font-light tracking-wide mb-2">
+          <p className="text-xl text-blue-600/70 font-normal tracking-wide mb-2">
             Neurodivergent Navigation Assistant
           </p>
-          <p className="text-blue-500/50 font-light">
+          <p className="text-blue-500/50 font-normal">
             Navigate the world on your terms
           </p>
         </div>
@@ -318,6 +430,26 @@ export default function Home() {
       </div>
 
       <style jsx>{`
+        @keyframes logo-entrance {
+          0% {
+            opacity: 0;
+            transform: scale(0.3) rotate(-180deg);
+          }
+          50% {
+            opacity: 1;
+            transform: scale(1.1) rotate(10deg);
+          }
+          70% {
+            transform: scale(0.95) rotate(-5deg);
+          }
+          100% {
+            opacity: 1;
+            transform: scale(1) rotate(0deg);
+          }
+        }
+        .animate-logo-entrance {
+          animation: logo-entrance 1.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+        }
         @keyframes drift {
           0%, 100% { transform: translate(0, 0) rotate(0deg); }
           33% { transform: translate(40px, -60px) rotate(3deg); }

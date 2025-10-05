@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { GoogleGenerativeAI } from '@google/generative-ai'
 
-const genAI = new GoogleGenerativeAI('AIzaSyCvUMD5h5QK_e-m3DP7aFibEqBVQTGYiTE')
+const genAI = new GoogleGenerativeAI('AIzaSyAmcl05RfWRTLM1WxucI4qLiktgxnGJ9pM')
 
 export async function POST(request: Request) {
   try {

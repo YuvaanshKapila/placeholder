@@ -617,7 +617,7 @@ export default handleAuth({
 
 
 ELEVEN LABS -  sk_f1b771c8ee6e1b8fadc5dc0c487165113cef5142be0df69e
-gemini api key: AIzaSyDXZ4vrMcqKBTpFILxmY8f4Ulkh1D5bJmw
+gemini api key: AIzaSyAmcl05RfWRTLM1WxucI4qLiktgxnGJ9pM
 
 Next.js
 Next.js
@@ -2493,7 +2493,7 @@ window.addEventListener('appinstalled', () => {
 ```bash
 # API Keys
 ELEVEN_LABS_API_KEY=sk_f1b771c8ee6e1b8fadc5dc0c487165113cef5142be0df69e
-GEMINI_API_KEY=AIzaSyDXZ4vrMcqKBTpFILxmY8f4Ulkh1D5bJmw
+GEMINI_API_KEY=AIzaSyAmcl05RfWRTLM1WxucI4qLiktgxnGJ9pM
 GOOGLE_MAPS_API_KEY=your_google_maps_api_key_here
 
 # Auth0 Configuration
