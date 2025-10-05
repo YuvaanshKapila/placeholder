@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "@auth0/nextjs-auth0": "^4.10.0",
+    "@auth0/nextjs-auth0": "^3.8.0",
     "@elevenlabs/elevenlabs-js": "^2.17.0",
     "@google/generative-ai": "^0.24.1",
     "@supabase/supabase-js": "^2.58.0",

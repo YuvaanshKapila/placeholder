@@ -9,7 +9,8 @@
       "Bash(find:*)",
       "Bash(npm info:*)",
       "Bash(cat:*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(npm ls:*)"
     ],
     "deny": [],
     "ask": []
