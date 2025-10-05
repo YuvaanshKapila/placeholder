@@ -4,11 +4,12 @@ import { useUser } from '@auth0/nextjs-auth0'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useState, useRef, useEffect } from 'react'
-import Tesseract from 'tesseract.js'
-import MathAnimation from '@/app/components/MathAnimation'
 import AccessibleButton from '@/app/components/AccessibleButton'
 import InstructionBanner from '@/app/components/InstructionBanner'
 import VoiceGuidanceToggle from '@/app/components/VoiceGuidanceToggle'
+import dynamic from 'next/dynamic'
+
+const MathAnimation = dynamic(() => import('@/app/components/MathAnimation'), { ssr: false });
 
 export default function DyscalculiaSupport() {
   const { user, isLoading } = useUser()
@@ -31,8 +32,9 @@ export default function DyscalculiaSupport() {
   }, [user, isLoading, router])
 
   const startCamera = async () => {
+    if (typeof window === 'undefined') return '';
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
+      const stream = await window.navigator.mediaDevices.getUserMedia({
         video: {
           facingMode: 'user',
           width: { ideal: 1280 },
@@ -183,8 +185,6 @@ export default function DyscalculiaSupport() {
                       onClick={startCamera}
                       className="px-6 sm:px-8 py-3 sm:py-4 bg-purple-600 text-white rounded-full hover:bg-purple-700 text-base sm:text-lg font-medium shadow-lg hover:shadow-xl"
                       label="Start Camera to scan your math problem"
-                      showArrow={true}
-                      arrowDirection="down"
                     >
                       Start Camera
                     </AccessibleButton>
@@ -202,8 +202,6 @@ export default function DyscalculiaSupport() {
                   disabled={isProcessing}
                   className="flex-1 px-4 sm:px-6 py-3 bg-green-600 text-white rounded-full hover:bg-green-700 disabled:opacity-50 text-sm sm:text-base font-medium shadow-lg hover:shadow-xl"
                   label={isProcessing ? 'Processing your math problem' : 'Capture the math problem from camera'}
-                  showArrow={!isProcessing}
-                  arrowDirection="right"
                 >
                   {isProcessing ? 'Processing...' : 'Capture Problem'}
                 </AccessibleButton>
@@ -236,8 +234,6 @@ export default function DyscalculiaSupport() {
                   disabled={isSolving}
                   className="w-full px-4 sm:px-6 py-3 bg-purple-600 text-white rounded-full hover:bg-purple-700 disabled:opacity-50 mb-3 sm:mb-4 font-medium text-base sm:text-lg shadow-lg hover:shadow-xl"
                   label={isSolving ? 'Solving your math problem with AI' : 'Solve this problem with step by step visual explanation'}
-                  showArrow={!isSolving}
-                  arrowDirection="right"
                 >
                   {isSolving ? 'Solving...' : 'Solve with Visual Steps'}
                 </AccessibleButton>
@@ -255,8 +251,6 @@ export default function DyscalculiaSupport() {
                       onClick={() => setShowAnimation(true)}
                       className="w-full px-4 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-full hover:from-purple-700 hover:to-pink-700 font-bold text-lg sm:text-xl shadow-lg hover:shadow-xl transition-all"
                       label="Watch animated explanation with narration"
-                      showArrow={true}
-                      arrowDirection="right"
                     >
                       Watch Animated Explanation
                     </AccessibleButton>

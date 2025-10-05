@@ -1,4 +1,4 @@
-import { Location, BusyPeriod, Category } from '../types/crowd-map';
+import { Location, BusyPeriod, Category, BusyStatus } from '../types/crowd-map';
 
 function generateBusySchedule(
   peakHours: number[],

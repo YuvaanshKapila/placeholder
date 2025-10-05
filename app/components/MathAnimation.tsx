@@ -19,9 +19,20 @@ export default function MathAnimation({ solution, onClose }: MathAnimationProps)
   const p5Instance = useRef<p5 | null>(null)
   const audioRef = useRef<HTMLAudioElement>(null)
   const [isPlaying, setIsPlaying] = useState(false)
+  const isPlayingRef = useRef(false)
   const [currentStep, setCurrentStep] = useState(0)
+  const currentStepRef = useRef(0)
   const [isGeneratingAudio, setIsGeneratingAudio] = useState(false)
   const [audioUrls, setAudioUrls] = useState<string[]>([])
+
+  // Keep refs in sync with state
+  useEffect(() => {
+    isPlayingRef.current = isPlaying
+  }, [isPlaying])
+
+  useEffect(() => {
+    currentStepRef.current = currentStep
+  }, [currentStep])
 
   // Generate audio for all steps
   useEffect(() => {
@@ -71,17 +82,23 @@ export default function MathAnimation({ solution, onClose }: MathAnimationProps)
     }
 
     generateAllAudio()
+
+    // Cleanup audio URLs on unmount
+    return () => {
+      audioUrls.forEach(url => URL.revokeObjectURL(url))
+    }
   }, [solution])
 
   // Setup p5.js animation
   useEffect(() => {
+    if (typeof window === 'undefined') return
     if (!canvasRef.current || p5Instance.current) return
 
     let animationFrame = 0
     let localStep = 0
     const maxFramesPerStep = 120 // 2 seconds at 60fps
 
-    const sketch = (p: p5) => {
+    const sketch = (p: any) => {
       p.setup = () => {
         // Responsive canvas size
         const width = window.innerWidth < 768 ? window.innerWidth - 32 : 800
@@ -93,7 +110,7 @@ export default function MathAnimation({ solution, onClose }: MathAnimationProps)
       p.draw = () => {
         p.background(240, 235, 255)
 
-        if (!isPlaying) {
+        if (!isPlayingRef.current) {
           // Show title screen
           p.fill(100, 50, 150)
           p.textAlign(p.CENTER, p.CENTER)
@@ -153,7 +170,7 @@ export default function MathAnimation({ solution, onClose }: MathAnimationProps)
       }
 
       // Addition animation: show circles appearing
-      const drawAddition = (p: p5, step: number, frame: number, maxFrames: number) => {
+      const drawAddition = (p: any, step: number, frame: number, maxFrames: number) => {
         const numbers = solution.interpretedProblem.match(/\d+/g)
         if (!numbers) return
 
@@ -237,7 +254,7 @@ export default function MathAnimation({ solution, onClose }: MathAnimationProps)
       }
 
       // Subtraction animation: cross out circles
-      const drawSubtraction = (p: p5, step: number, frame: number, maxFrames: number) => {
+      const drawSubtraction = (p: any, step: number, frame: number, maxFrames: number) => {
         const numbers = solution.interpretedProblem.match(/\d+/g)
         if (!numbers) return
 
@@ -299,7 +316,7 @@ export default function MathAnimation({ solution, onClose }: MathAnimationProps)
       }
 
       // Multiplication animation: show groups
-      const drawMultiplication = (p: p5, step: number, frame: number, maxFrames: number) => {
+      const drawMultiplication = (p: any, step: number, frame: number, maxFrames: number) => {
         const numbers = solution.interpretedProblem.match(/\d+/g)
         if (!numbers) return
 
@@ -353,7 +370,7 @@ export default function MathAnimation({ solution, onClose }: MathAnimationProps)
       }
 
       // Division animation: split into groups
-      const drawDivision = (p: p5, step: number, frame: number, maxFrames: number) => {
+      const drawDivision = (p: any, step: number, frame: number, maxFrames: number) => {
         const numbers = solution.interpretedProblem.match(/\d+/g)
         if (!numbers) return
 
@@ -403,7 +420,7 @@ export default function MathAnimation({ solution, onClose }: MathAnimationProps)
       }
 
       // Generic animation for other problems
-      const drawGeneric = (p: p5, step: number, frame: number, maxFrames: number) => {
+      const drawGeneric = (p: any, step: number, frame: number, maxFrames: number) => {
         p.fill(100, 150, 255)
         p.textSize(20)
         p.textAlign(p.CENTER)
@@ -426,7 +443,7 @@ export default function MathAnimation({ solution, onClose }: MathAnimationProps)
       p5Instance.current?.remove()
       p5Instance.current = null
     }
-  }, [isPlaying, solution])
+  }, [solution])
 
   // Play audio when step changes
   useEffect(() => {
