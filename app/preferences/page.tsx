@@ -22,6 +22,7 @@ export default function Preferences() {
     touchAvoidance: 'medium'
   })
   const [saved, setSaved] = useState(false)
+  const { isVoiceGuidanceEnabled } = useAccessibility()
 
   useEffect(() => {
     if (user) {
@@ -115,7 +116,6 @@ export default function Preferences() {
     return null
   }
 
-  const { isVoiceGuidanceEnabled } = useAccessibility()
 
   const neurodivergencyOptions = [
     {
@@ -181,10 +181,10 @@ export default function Preferences() {
                 </span>
               </h2>
               <p className="text-lg text-blue-600/80 font-light mb-2">
-                We're so glad you're here
+                We&apos;re so glad you&apos;re here
               </p>
               <p className="text-blue-500/60 font-light max-w-lg mx-auto">
-                Your neurodivergence is valid, valued, and understood. Let's personalize your experience to make navigation comfortable and empowering for you.
+                Your neurodivergence is valid, valued, and understood. Let&apos;s personalize your experience to make navigation comfortable and empowering for you.
               </p>
             </div>
 

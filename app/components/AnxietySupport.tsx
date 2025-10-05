@@ -318,7 +318,7 @@ export default function AnxietySupport({ onClose, preferences }: AnxietySupportP
             <div className="space-y-6">
               <div className="text-center">
                 <h3 className="text-2xl font-bold text-gray-900 mb-2">How are you feeling right now?</h3>
-                <p className="text-gray-600">Your feelings are valid. Let's work through this together.</p>
+                <p className="text-gray-600">Your feelings are valid. Let&apos;s work through this together.</p>
               </div>
 
               <div className="flex justify-center gap-4">
@@ -662,7 +662,7 @@ export default function AnxietySupport({ onClose, preferences }: AnxietySupportP
 
               {savedEntries.length > 0 && (
                 <div className="bg-gray-50 rounded-xl p-4">
-                  <h4 className="font-bold text-gray-900 mb-2">Today's Entries ({savedEntries.length})</h4>
+                  <h4 className="font-bold text-gray-900 mb-2">Today&apos;s Entries ({savedEntries.length})</h4>
                   <p className="text-sm text-gray-600">Your thoughts have been recorded for this session</p>
                 </div>
               )}

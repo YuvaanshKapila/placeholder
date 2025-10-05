@@ -308,12 +308,12 @@ export default function DyslexiaSupport() {
         <div className="mt-8 bg-white/60 backdrop-blur-md rounded-3xl p-8 border border-blue-100">
           <h3 className="text-xl font-light text-blue-900 mb-4">How to Use</h3>
           <ol className="space-y-2 text-blue-600/80 list-decimal list-inside">
-            <li>Click "Start Camera" to activate your device's camera</li>
+            <li>Click &quot;Start Camera&quot; to activate your device&quot;s camera</li>
             <li>Point the camera at any printed text (books, signs, documents)</li>
-            <li>Click "Capture & Extract Text" when the text is clearly visible</li>
+            <li>Click &quot;Capture & Extract Text&quot; when the text is clearly visible</li>
             <li>Wait for the text to be extracted and cleaned by AI</li>
             <li>Adjust the font size and background color for comfort</li>
-            <li>Click "Read Aloud" to hear the text spoken with natural voice</li>
+            <li>Click &quot;Read Aloud&quot; to hear the text spoken with natural voice</li>
           </ol>
         </div>
       </div>
